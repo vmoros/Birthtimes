@@ -4,6 +4,7 @@ from tkinter import messagebox
 from datetime import datetime
 from tkintertable import TableCanvas
 from pathlib import Path
+from ctypes import windll
 
 
 # how many seconds, minutes, hours, etc. have elapsed since the given datetime
@@ -32,12 +33,12 @@ class Birthtimes(tk.Tk):
     bdayFormat = "%Y-%m-%d"
 
     def __init__(self):
+        windll.shcore.SetProcessDpiAwareness(2)
         Path("people.csv").touch()
 
         super().__init__()
-        self.geometry(
-            f"{2 * self.winfo_screenwidth() // 3}x{self.winfo_screenheight() // 2}"
-        )
+        windowWidth = 2 * self.winfo_screenwidth() // 3
+        self.geometry(f"{windowWidth}x{self.winfo_screenheight() // 2}")
         self.title("Birthtimes ⏲️")
 
         nameLabel = tk.Label(self, text="Name")
@@ -59,9 +60,13 @@ class Birthtimes(tk.Tk):
         refrButton.pack()
 
         tframe = tk.Frame(self)
-        tframe.pack(expand=True, fill="both")
+        tframe.pack(expand=True, fill=tk.BOTH)
 
-        self.table = TableCanvas(tframe, data=self.dataFromFile())
+        data = self.dataFromFile()
+        self.table = TableCanvas(
+            tframe, data=data, cellwidth=(windowWidth // 9) - 1, read_only=True
+        )
+        self.table.rowheaderwidth = 0
         self.table.show()
 
     def refr(self, addingPerson):
@@ -85,6 +90,15 @@ class Birthtimes(tk.Tk):
                 f.write(f"{name},{bday}\n")
 
         self.table.model.importDict(self.dataFromFile())
+
+        newColWidth = (self.winfo_width() // 9) - 1
+        self.table.cellwidth = newColWidth
+        for (
+            c
+        ) in (
+            self.table.model.columnwidths
+        ):  # setting the table's cellwidth won't update manually-resized columns, but this way will
+            self.table.model.columnwidths[c] = newColWidth
         self.table.redraw()
 
     def dataFromFile(self):
