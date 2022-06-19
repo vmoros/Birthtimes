@@ -1,9 +1,10 @@
-import tkinter as tk
 import csv
-from tkinter import messagebox, filedialog
-from datetime import datetime
-from tkintertable import TableCanvas
+import tkinter as tk
 from ctypes import windll
+from datetime import datetime
+from pathlib import Path
+from tkinter import messagebox, filedialog
+from tkintertable import TableCanvas
 
 
 # how many seconds, minutes, hours, etc. have elapsed since the given datetime
@@ -62,7 +63,7 @@ class Birthtimes(tk.Tk):
         )
         refrButton.pack()
 
-        csvFileLabel = tk.Label(entriesFrame, text="Selected CSV file:")
+        csvFileLabel = tk.Label(entriesFrame, text="Selected CSV file(s):")
         csvFileLabel.pack()
         self.selectedCsv = tk.Entry(entriesFrame)
         self.selectedCsv.pack()
@@ -70,6 +71,15 @@ class Birthtimes(tk.Tk):
             entriesFrame, text="Select CSV(s)", command=lambda: self.selectCsv()
         )
         pickCsvButton.pack()
+
+        createCsvLabel = tk.Label(entriesFrame, text="Name of CSV to create:")
+        createCsvLabel.pack()
+        self.createCsvName = tk.Entry(entriesFrame)
+        self.createCsvName.pack()
+        createCsvButton = tk.Button(
+            entriesFrame, text="Create CSV", command=lambda: self.createCsv()
+        )
+        createCsvButton.pack()
         #####################################################################
 
         self.tableFrame = tk.Frame(self)
@@ -155,6 +165,15 @@ class Birthtimes(tk.Tk):
         self.selectedCsv.delete(0, tk.END)
         self.selectedCsv.insert(0, ",".join(selectedCsvPath))
         self.refr(False)
+
+    def createCsv(self):
+        csvName = self.createCsvName.get()
+        if len(csvName) == 0:
+            messagebox.showerror("Error", "Please enter a name for your CSV")
+            return
+
+        self.createCsvName.delete(0, tk.END)
+        Path(csvName + ".csv").touch(exist_ok=True)
 
 
 if __name__ == "__main__":
