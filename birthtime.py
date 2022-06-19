@@ -38,6 +38,7 @@ class Birthtimes(tk.Tk):
         self.geometry(
             f"{2 * self.winfo_screenwidth() // 3}x{self.winfo_screenheight() // 2}"
         )
+        self.title("Birthtimes ⏲️")
 
         nameLabel = tk.Label(self, text="Name")
         nameLabel.pack()
